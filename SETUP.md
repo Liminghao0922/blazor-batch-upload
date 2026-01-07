@@ -95,7 +95,11 @@ When running locally without SWA CLI:
 ### 4. GitHub Actions
 
 The workflow file is located at `.github/workflows/azure-static-web-apps-deploy.yml`.
-Ensure the secret `AZURE_STATIC_WEB_APPS_API_TOKEN` is set in your GitHub Repository settings if you didn't link it automatically via Azure Portal.
+
+1.  **Deployment Token**: Ensure the secret `AZURE_STATIC_WEB_APPS_API_TOKEN` is set in your GitHub Repository settings if you didn't link it automatically via Azure Portal.
+2.  **Authentication Secrets**: To support the CI/CD environment variable replacement for `appsettings.json`, add the following **Repository Secrets**:
+    - `AZURE_AD_TENANT_ID`: Your Azure AD Tenant ID.
+    - `AZURE_AD_CLIENT_ID`: Your App Registration Client ID.
 
 ## Usage
 
