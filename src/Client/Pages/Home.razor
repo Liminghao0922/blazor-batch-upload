@@ -1,0 +1,79 @@
+﻿@page "/"
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@attribute [Authorize]
+@inject HttpClient Http
+@inject MessageService _message
+@inject IAccessTokenProvider TokenProvider
+@inject IConfiguration Configuration
+
+<PageTitle>Batch File Upload</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div style="padding: 24px; max-width: 800px; margin: 0 auto;">
+            <Card Title="File Batch Upload">
+                <p>Drag and drop files below or click to upload.</p>
+
+                <Upload Action="@uploadUrl"
+                        Name="files"
+                        Multiple="true"
+                        Drag="true"
+                        Headers="@headers"
+                        OnChange="HandleChange">
+                    <p class="ant-upload-drag-icon">
+                        <Icon Type="inbox" />
+                    </p>
+                    <p class="ant-upload-text">Click or drag file to this area to upload</p>
+                    <p class="ant-upload-hint">
+                        Support for a single or bulk upload.
+                    </p>
+                </Upload>
+            </Card>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div style="text-align: center; margin-top: 50px;">
+             <h2>Please log in to upload files.</h2>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    Dictionary<string, string> headers = new Dictionary<string, string>();
+    string uploadUrl = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var apiBaseUrl = Configuration["ApiBaseUrl"]; 
+        if (string.IsNullOrEmpty(apiBaseUrl))
+        {
+             // Fallback if not configured (e.g. production SWA)
+             // If ApiBaseUrl is explicit, use it. Otherwise assume relative path (SWA proxy)
+             uploadUrl = "api/files/upload";
+        }
+        else 
+        {
+             uploadUrl = $"{apiBaseUrl}/api/files/upload";
+        }
+
+        var result = await TokenProvider.RequestAccessToken();
+        if (result.TryGetToken(out var token))
+        {
+            headers["Authorization"] = $"Bearer {token.Value}";
+        }
+    }
+
+    private void HandleChange(UploadInfo fileinfo)
+    {
+        if (fileinfo.File.State == UploadState.Success)
+        {
+            _message.Success($"{fileinfo.File.FileName} uploaded successfully");
+        }
+        else if (fileinfo.File.State == UploadState.Fail)
+        {
+            _message.Error($"{fileinfo.File.FileName} upload failed. Server error: {fileinfo.File.Response}");
+        }
+    }
+}
