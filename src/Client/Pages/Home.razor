@@ -8,13 +8,13 @@
 @inject IAccessTokenProvider TokenProvider
 @inject IConfiguration Configuration
 
-<PageTitle>Batch File Upload</PageTitle>
+<PageTitle>ファイル一括アップロード</PageTitle>
 
 <AuthorizeView>
     <Authorized>
         <div style="padding: 24px; max-width: 800px; margin: 0 auto;">
-            <Card Title="File Batch Upload">
-                <p>Drag and drop files below or click to upload.</p>
+            <Card Title="ファイル一括アップロード">
+                <p>以下のエリアにファイルをドラッグ＆ドロップするか、クリックしてアップロードしてください。</p>
 
                 <Upload Action="@uploadUrl"
                         Name="files"
@@ -25,9 +25,9 @@
                     <p class="ant-upload-drag-icon">
                         <Icon Type="inbox" />
                     </p>
-                    <p class="ant-upload-text">Click or drag file to this area to upload</p>
+                    <p class="ant-upload-text">クリック、またはファイルをこのエリアにドラッグしてアップロード</p>
                     <p class="ant-upload-hint">
-                        Support for a single or bulk upload.
+                        単一または複数のファイルのアップロードをサポートしています。
                     </p>
                 </Upload>
             </Card>
@@ -35,7 +35,7 @@
     </Authorized>
     <NotAuthorized>
         <div style="text-align: center; margin-top: 50px;">
-             <h2>Please log in to upload files.</h2>
+             <h2>ファイルをアップロードするにはログインしてください。</h2>
         </div>
     </NotAuthorized>
 </AuthorizeView>
@@ -69,11 +69,11 @@
     {
         if (fileinfo.File.State == UploadState.Success)
         {
-            _message.Success($"{fileinfo.File.FileName} uploaded successfully");
+            _message.Success($"{fileinfo.File.FileName} のアップロードに成功しました");
         }
         else if (fileinfo.File.State == UploadState.Fail)
         {
-            _message.Error($"{fileinfo.File.FileName} upload failed. Server error: {fileinfo.File.Response}");
+            _message.Error($"{fileinfo.File.FileName} のアップロードに失敗しました。サーバーエラー: {fileinfo.File.Response}");
         }
     }
 }
