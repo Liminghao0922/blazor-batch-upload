@@ -58,5 +58,38 @@ namespace Api
 
             return new OkObjectResult(new { message = "Upload successful", files = uploadResults });
         }
+
+        [Function("ListFiles")]
+        public async Task<IActionResult> ListFiles(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "files/list")] HttpRequest req)
+        {
+            _logger.LogInformation("Listing files.");
+
+            var connectionString = Environment.GetEnvironmentVariable("BlobStorageConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            }
+
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient("uploads");
+            await containerClient.CreateIfNotExistsAsync();
+
+            var blobList = new List<BlobInfo>();
+            await foreach (var blobItem in containerClient.GetBlobsAsync())
+            {
+                blobList.Add(new BlobInfo { Name = blobItem.Name, Size = blobItem.Properties.ContentLength , LastModified = blobItem.Properties.LastModified });
+            }
+
+            return new OkObjectResult(blobList);
+        }
+    }
+
+    public class BlobInfo
+    {
+        public string Name { get; set; }
+        public long? Size { get; set; }
+
+        public DateTimeOffset? LastModified { get; set; }
     }
 }
